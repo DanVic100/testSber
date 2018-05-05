@@ -23,7 +23,7 @@ public class testSber {
 
     @After
     public void tearDown(){
-        //driver.quit();
+        driver.quit();
     }
 
     @Test
