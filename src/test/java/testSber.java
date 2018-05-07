@@ -1,51 +1,71 @@
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.interactions.Action;
+import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 
-public class testSber {
+import java.util.List;
 
-    WebDriver driver;
+public class testSber extends  BasePage{
 
-    @Before
-    public void setUp(){
-        System.setProperty("webdriver.chrome.driver", "drivers/chromedriver.exe");
-        driver = new ChromeDriver();
-        driver.manage().window().maximize();
-        driver.get("http://www.sberbank.ru/ru/person");
+    @FindBy(xpath =  "//*[@class='region-list__name']")
+    private WebElement buttonRegion;
+
+    @FindBy(xpath =  "//input[@placeholder='Введите название региона']")
+    private WebElement region;
+
+    @FindBy(xpath =  "//div[@role='option']")
+    private WebElement buttonReg;
+
+    @FindBy(xpath =  "//span[@class='region-list__name']")
+    private WebElement newRegion;
+
+    @FindBy(xpath =  "//div[@class = 'social__wrapper' ]")
+    private List<WebElement> icons;
+
+
+
+    private testSber getNewregion()
+    {
+        buttonRegion.click();
+        wait.until(ExpectedConditions.visibilityOf(region));
+        region.sendKeys("Нижегородская область");
+        buttonReg.click();
+
+        return  this;
     }
 
-    @After
-    public void tearDown(){
-        driver.quit();
+    private testSber assertNewRegion()
+    {
+        Assert.assertEquals("Титульник страницы не соответстувет выбору в селекте","Нижегородская область",newRegion.getText());
+
+        return this;
+    }
+
+    private  testSber assertScroll()
+    {
+        JavascriptExecutor jse = (JavascriptExecutor)webDriver;
+        jse.executeScript("window.scrollTo(0, document.body.scrollHeight)", "");
+        return this;
+    }
+
+    private  testSber assertIcon()
+    {
+        boolean isPresent = false;
+        if (icons.size()>0) isPresent = true;
+        Assert.assertTrue(isPresent);
+        return this;
     }
 
     @Test
     public void testSber()
     {
-        WebElement buttonRegion = driver.findElement(By.xpath("//*[@class='region-list__name']"));
-        buttonRegion.click();
-
-        WebElement region = driver.findElement(By.xpath("//input[@placeholder='Введите название региона']"));
-        region.sendKeys("Нижегородская область");
-
-        WebElement buttonReg = driver.findElement(By.xpath("//div[@role='option']"));
-        buttonReg.click();
-
-        WebElement newRegion = driver.findElement(By.xpath("//span[@class='region-list__name']"));
-        Assert.assertEquals("Титульник страницы не соответстувет выбору в селекте","Нижегородская область",newRegion.getText());
-
-        JavascriptExecutor jse = (JavascriptExecutor)driver;
-        jse.executeScript("window.scrollTo(0, document.body.scrollHeight)", "");
-
-        Boolean isPresent = driver.findElements(By.xpath("//div[@class = 'social__wrapper' ]")).size() > 0;
-        Assert.assertTrue(isPresent);
+        this.getNewregion()
+                .assertNewRegion()
+                .assertScroll()
+                .assertIcon();
 
     }
 
